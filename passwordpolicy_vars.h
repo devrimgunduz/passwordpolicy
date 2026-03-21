@@ -66,7 +66,7 @@ typedef struct PasswordPolicyHistoryHash
 typedef struct PasswordPolicyHistory
 {
   PasswordPolicyAccountKey key;
-  PasswordPolicyHistoryHash *hashes;
+  PasswordPolicyHistoryHash hashes[FLEXIBLE_ARRAY_MEMBER];
 } PasswordPolicyHistory;
 
 typedef struct PasswordPolicyShm

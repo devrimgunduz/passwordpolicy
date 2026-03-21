@@ -112,10 +112,13 @@ void passwordpolicy_shmem_shutdown(int code, Datum arg)
 Size passwordpolicy_memsize(void)
 {
   Size size;
+  Size history_entry_size;
+
+  history_entry_size = offsetof(PasswordPolicyHistory, hashes) + mul_size(guc_passwordpolicy_history_max_num_entries, sizeof(PasswordPolicyHistoryHash));
 
   size = MAXALIGN(sizeof(PasswordPolicyShm));
   size = add_size(size, hash_estimate_size(guc_passwordpolicy_lock_max_num_accounts, sizeof(PasswordPolicyAccount)));
-  size = add_size(size, hash_estimate_size(guc_passwordpolicy_lock_max_num_accounts, sizeof(PasswordPolicyHistory)));
+  size = add_size(size, hash_estimate_size(guc_passwordpolicy_lock_max_num_accounts, history_entry_size));
 
   return size;
 }

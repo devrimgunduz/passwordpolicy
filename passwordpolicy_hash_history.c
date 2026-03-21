@@ -46,9 +46,6 @@ void passwordpolicy_hash_history_add(const char *username, const char *password_
   {
     ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' without password history", username)));
     strncpy(entry->key, username, NAMEDATALEN);
-    entry->hashes = (PasswordPolicyHistoryHash *)ShmemAlloc(mul_size(guc_passwordpolicy_history_max_num_entries, sizeof(PasswordPolicyHistoryHash)));
-    if (!entry->hashes)
-      return;
     MemSet(entry->hashes, 0, mul_size(guc_passwordpolicy_history_max_num_entries, sizeof(PasswordPolicyHistoryHash)));
   }
 
@@ -116,7 +113,7 @@ void passwordpolicy_hash_history_init(void)
   HASHCTL info;
 
   info.keysize = sizeof(PasswordPolicyAccountKey);
-  info.entrysize = sizeof(PasswordPolicyHistory);
+  info.entrysize = offsetof(PasswordPolicyHistory, hashes) + mul_size(guc_passwordpolicy_history_max_num_entries, sizeof(PasswordPolicyHistoryHash));
   passwordpolicy_hash_history = ShmemInitHash("passwordpolicy hash history",
                                               guc_passwordpolicy_history_max_num_accounts,
                                               guc_passwordpolicy_history_max_num_accounts,
