@@ -31,8 +31,8 @@
 #include "passwordpolicy_vars.h"
 
 /* forward declaration private functions */
-void passwordpolicy_check_password_policy(const char *password);
-char *passwordpolicy_generate_sha256_hash(const char *input);
+static void passwordpolicy_check_password_policy(const char *password);
+static char *passwordpolicy_generate_sha256_hash(const char *input);
 
 /*
  * check_password
@@ -147,7 +147,7 @@ void passwordpolicy_check_password(const char *username, const char *shadow_pass
   /* all checks passed, password is ok */
 }
 
-void passwordpolicy_check_password_policy(const char *password)
+static void passwordpolicy_check_password_policy(const char *password)
 {
   int i, pwdlen, letter_count, number_count, spc_char_count, upper_count, lower_count;
 
@@ -220,7 +220,7 @@ void passwordpolicy_check_password_policy(const char *password)
   }
 }
 
-char *passwordpolicy_generate_sha256_hash(const char *input)
+static char *passwordpolicy_generate_sha256_hash(const char *input)
 {
   uint8 hash[SHA256_DIGEST_LENGTH];
   char *input_hash;

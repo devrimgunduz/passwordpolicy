@@ -22,9 +22,9 @@
 #include "passwordpolicy_vars.h"
 
 /* Private functions forward declaration */
-void passwordpolicy_hash_accounts_add(const char *username);
-void passwordpolicy_hash_accounts_hard_delete(void);
-void passwordpolicy_hash_accounts_soft_delete(void);
+static void passwordpolicy_hash_accounts_add(const char *username);
+static void passwordpolicy_hash_accounts_hard_delete(void);
+static void passwordpolicy_hash_accounts_soft_delete(void);
 
 void passwordpolicy_hash_accounts_init(void)
 {
@@ -125,7 +125,7 @@ error:
 }
 
 /* PRIVATE FUNCTIONS */
-void passwordpolicy_hash_accounts_add(const char *username)
+static void passwordpolicy_hash_accounts_add(const char *username)
 {
   bool found;
   PasswordPolicyAccount *entry;
@@ -159,7 +159,7 @@ void passwordpolicy_hash_accounts_add(const char *username)
 /*
  * @brief Mark all the entries still marked for soft-deletion as deleted (1)
  **/
-void passwordpolicy_hash_accounts_hard_delete(void)
+static void passwordpolicy_hash_accounts_hard_delete(void)
 {
   HASH_SEQ_STATUS hash_seq;
   PasswordPolicyAccount *entry;
@@ -178,7 +178,7 @@ void passwordpolicy_hash_accounts_hard_delete(void)
 /*
  * @brief Mark all the active entries as candidate to soft-deletion (2)
  **/
-void passwordpolicy_hash_accounts_soft_delete(void)
+static void passwordpolicy_hash_accounts_soft_delete(void)
 {
   HASH_SEQ_STATUS hash_seq;
   PasswordPolicyAccount *entry;

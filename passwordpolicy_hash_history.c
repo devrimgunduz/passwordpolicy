@@ -23,59 +23,8 @@
 
 #include "passwordpolicy_vars.h"
 
-/* Internal function to add history, assumes lock is held */
-static void passwordpolicy_hash_history_add_internal(const char *username, const char *password_hash, const TimestampTz changed_at)
-{
-  bool found;
-  int i;
-  PasswordPolicyHistory *entry;
-  PasswordPolicyHistoryHash *oldest_hash;
-
-  if (username == NULL)
-    return;
-
-  entry = (PasswordPolicyHistory *)hash_search(passwordpolicy_hash_history, username, HASH_ENTER_NULL, &found);
-  if (entry == NULL)
-  {
-    ereport(ERROR, (errcode(ERRCODE_OUT_OF_MEMORY),
-                    errmsg("passwordpolicy: not enough shared memory to add password history entry"),
-                    errhint("increase the value of password_policy_history.max_number_accounts")));
-    return;
-  }
-
-  if (!found)
-  {
-    ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' without password history", username)));
-    strncpy(entry->key, username, NAMEDATALEN);
-    MemSet(entry->hashes, 0, mul_size(guc_passwordpolicy_history_max_num_entries, sizeof(PasswordPolicyHistoryHash)));
-  }
-
-  oldest_hash = NULL;
-  for (i = 0; i < guc_passwordpolicy_history_max_num_entries; i++)
-  {
-    if (entry->hashes[i].changed_at == 0)
-    {
-      entry->hashes[i].changed_at = changed_at;
-      strcpy(entry->hashes[i].password_hash, password_hash);
-      ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' password history set in '%d' '%ld'",
-                              username, i, changed_at)));
-      return;
-    }
-    else
-    {
-      if (oldest_hash == NULL || oldest_hash->changed_at > entry->hashes[i].changed_at)
-        oldest_hash = &(entry->hashes[i]);
-    }
-  }
-
-  if (oldest_hash)
-  {
-    ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' password history overwritting '%s' '%ld'",
-                            username, oldest_hash->password_hash, oldest_hash->changed_at)));
-    oldest_hash->changed_at = changed_at;
-    strcpy(oldest_hash->password_hash, password_hash);
-  }
-}
+/* forward declaration private functions */
+static void passwordpolicy_hash_history_add_internal(const char *username, const char *password_hash, const TimestampTz changed_at);
 
 void passwordpolicy_hash_history_add(const char *username, const char *password_hash, const TimestampTz changed_at)
 {
@@ -383,4 +332,59 @@ error:
   CommitTransactionCommand();
   pgstat_report_stat(true);
   pgstat_report_activity(STATE_IDLE, NULL);
+}
+
+/* Private functions */
+/* Internal function to add history, assumes lock is held */
+static void passwordpolicy_hash_history_add_internal(const char *username, const char *password_hash, const TimestampTz changed_at)
+{
+  bool found;
+  int i;
+  PasswordPolicyHistory *entry;
+  PasswordPolicyHistoryHash *oldest_hash;
+
+  if (username == NULL)
+    return;
+
+  entry = (PasswordPolicyHistory *)hash_search(passwordpolicy_hash_history, username, HASH_ENTER_NULL, &found);
+  if (entry == NULL)
+  {
+    ereport(ERROR, (errcode(ERRCODE_OUT_OF_MEMORY),
+                    errmsg("passwordpolicy: not enough shared memory to add password history entry"),
+                    errhint("increase the value of password_policy_history.max_number_accounts")));
+    return;
+  }
+
+  if (!found)
+  {
+    ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' without password history", username)));
+    strncpy(entry->key, username, NAMEDATALEN);
+    MemSet(entry->hashes, 0, mul_size(guc_passwordpolicy_history_max_num_entries, sizeof(PasswordPolicyHistoryHash)));
+  }
+
+  oldest_hash = NULL;
+  for (i = 0; i < guc_passwordpolicy_history_max_num_entries; i++)
+  {
+    if (entry->hashes[i].changed_at == 0)
+    {
+      entry->hashes[i].changed_at = changed_at;
+      strcpy(entry->hashes[i].password_hash, password_hash);
+      ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' password history set in '%d' '%ld'",
+                              username, i, changed_at)));
+      return;
+    }
+    else
+    {
+      if (oldest_hash == NULL || oldest_hash->changed_at > entry->hashes[i].changed_at)
+        oldest_hash = &(entry->hashes[i]);
+    }
+  }
+
+  if (oldest_hash)
+  {
+    ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' password history overwritting '%s' '%ld'",
+                            username, oldest_hash->password_hash, oldest_hash->changed_at)));
+    oldest_hash->changed_at = changed_at;
+    strcpy(oldest_hash->password_hash, password_hash);
+  }
 }

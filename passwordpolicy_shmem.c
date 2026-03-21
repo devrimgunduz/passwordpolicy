@@ -25,7 +25,7 @@
 #define TRANCHE_NAME_HISTORY "passwordpolicy history"
 
 /* Private functions forward declaration */
-Size passwordpolicy_memsize(void);
+static Size passwordpolicy_memsize(void);
 
 bool passwordpolicy_shmem_check(void)
 {
@@ -109,7 +109,7 @@ void passwordpolicy_shmem_shutdown(int code, Datum arg)
 }
 
 /* Private functions */
-Size passwordpolicy_memsize(void)
+static Size passwordpolicy_memsize(void)
 {
   Size size;
   Size history_entry_size;
