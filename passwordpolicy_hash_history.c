@@ -23,7 +23,8 @@
 
 #include "passwordpolicy_vars.h"
 
-void passwordpolicy_hash_history_add(const char *username, const char *password_hash, const TimestampTz changed_at)
+/* Internal function to add history, assumes lock is held */
+static void passwordpolicy_hash_history_add_internal(const char *username, const char *password_hash, const TimestampTz changed_at)
 {
   bool found;
   int i;
@@ -33,12 +34,9 @@ void passwordpolicy_hash_history_add(const char *username, const char *password_
   if (username == NULL)
     return;
 
-  /* We need an exclusive lock to protect the background worker scan */
-  LWLockAcquire(passwordpolicy_lock_history, LW_EXCLUSIVE);
   entry = (PasswordPolicyHistory *)hash_search(passwordpolicy_hash_history, username, HASH_ENTER_NULL, &found);
   if (entry == NULL)
   {
-    LWLockRelease(passwordpolicy_lock_history);
     ereport(ERROR, (errcode(ERRCODE_OUT_OF_MEMORY),
                     errmsg("passwordpolicy: not enough shared memory to add password history entry"),
                     errhint("increase the value of password_policy_history.max_number_accounts")));
@@ -61,7 +59,6 @@ void passwordpolicy_hash_history_add(const char *username, const char *password_
       strcpy(entry->hashes[i].password_hash, password_hash);
       ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' password history set in '%d' '%ld'",
                               username, i, changed_at)));
-      LWLockRelease(passwordpolicy_lock_history);
       return;
     }
     else
@@ -78,6 +75,12 @@ void passwordpolicy_hash_history_add(const char *username, const char *password_
     oldest_hash->changed_at = changed_at;
     strcpy(oldest_hash->password_hash, password_hash);
   }
+}
+
+void passwordpolicy_hash_history_add(const char *username, const char *password_hash, const TimestampTz changed_at)
+{
+  LWLockAcquire(passwordpolicy_lock_history, LW_EXCLUSIVE);
+  passwordpolicy_hash_history_add_internal(username, password_hash, changed_at);
   LWLockRelease(passwordpolicy_lock_history);
 }
 
@@ -202,9 +205,9 @@ void passwordpolicy_hash_history_load(void)
   for (i = 0; i < SPI_processed; i++)
   {
     changed_at = DatumGetTimestampTz(SPI_getbinval(tuptable->vals[i], tupdesc, 3, &isnull));
-    passwordpolicy_hash_history_add(SPI_getvalue(tuptable->vals[i], tupdesc, 1),
-                                    SPI_getvalue(tuptable->vals[i], tupdesc, 2),
-                                    changed_at);
+    passwordpolicy_hash_history_add_internal(SPI_getvalue(tuptable->vals[i], tupdesc, 1),
+                                             SPI_getvalue(tuptable->vals[i], tupdesc, 2),
+                                             changed_at);
     if (changed_at > passwordpolicy_hash_history_last_save)
       passwordpolicy_hash_history_last_save = changed_at;
   }
