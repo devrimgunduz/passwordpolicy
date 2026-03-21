@@ -241,6 +241,7 @@ void passwordpolicy_hash_history_save(void)
 
   SetCurrentStatementStartTimestamp();
   StartTransactionCommand();
+  // SPI_connects creates a temporary memory pool, any subsequent palloc will be inside it and freed with SPI_finish
   SPI_connect();
   PushActiveSnapshot(GetTransactionSnapshot());
 
@@ -379,6 +380,4 @@ error:
   CommitTransactionCommand();
   pgstat_report_stat(true);
   pgstat_report_activity(STATE_IDLE, NULL);
-  if (updates)
-    pfree(updates);
 }
