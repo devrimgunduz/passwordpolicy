@@ -12,6 +12,7 @@
 
 #include "passwordpolicy_auth.h"
 
+#include <storage/proc.h>
 #include <utils/hsearch.h>
 #include <utils/timestamp.h>
 
@@ -37,7 +38,14 @@ void passwordpolicy_client_authentication(Port *port, int status)
   if (status == STATUS_EOF)
     return;
 
+  /*
+   * Safety check: we need MyProc to access shared locks via hash_search.
+   * Although InitProcess usually runs before auth, defensive coding prevents panics.
+   */
   if (!passwordpolicy_shmem_check())
+    return;
+
+  if (MyProc == NULL)
     return;
 
   if (guc_passwordpolicy_lock_after == 0)
