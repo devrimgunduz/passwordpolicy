@@ -3,7 +3,7 @@
  * passwordpolicy_shmem.c
  *      Functions to manage shared memory
  *
- * Copyright (c) 2024, Francisco Miguel Biete Banon
+ * Copyright (c) 2024-2026, Francisco Miguel Biete Banon
  *
  * This code is released under the PostgreSQL licence, as given at
  *  http://www.postgresql.org/about/licence/
