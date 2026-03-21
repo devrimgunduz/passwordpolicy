@@ -81,6 +81,7 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
   bool found;
   int i;
   PasswordPolicyHistory *entry;
+  bool result = false;
 
   if (username == NULL)
     return false;
@@ -99,13 +100,16 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
     if (entry->hashes[i].changed_at != 0)
     {
       if (strcmp(password_hash, entry->hashes[i].password_hash) == 0)
-        return true;
+      {
+        result = true;
+        break;
+      }
     }
   }
 
   ereport(DEBUG3, (errmsg("passwordpolicy: password hash for account '%s' doesn't exist", username)));
 
-  return false;
+  return result;
 }
 
 void passwordpolicy_hash_history_init(void)
