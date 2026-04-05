@@ -73,12 +73,14 @@ void PasswordPolicyBgwMain(Datum arg)
   /* Disable paralle query */
   SetConfigOption("max_parallel_workers_per_gather", "0", PGC_USERSET, PGC_S_OVERRIDE);
 
-  passwordpolicy_hash_accounts_load();
-
   passwordpolicy_hash_history_load();
 
   while (1)
   {
+    MemoryContext oldContext;
+    MemoryContextReset(PasswordPolicyContext);
+    oldContext = MemoryContextSwitchTo(PasswordPolicyContext);
+
     int rc;
 
     CHECK_FOR_INTERRUPTS();
@@ -106,6 +108,7 @@ void PasswordPolicyBgwMain(Datum arg)
       proc_exit(1);
 
     ResetLatch(&MyProc->procLatch);
+    MemoryContextSwitchTo(oldContext);
   }
 
   MemoryContextReset(PasswordPolicyContext);
