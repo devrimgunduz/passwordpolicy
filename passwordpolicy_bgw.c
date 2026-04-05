@@ -118,7 +118,7 @@ void PasswordPolicyBgwMain(Datum arg)
 /* private functions */
 
 /**
- * @brief Signal handler for SIGHUP
+ * @brief Signal handler for SIGTERM
  * @param signal_arg: signal number
  * @return void
  */
@@ -133,7 +133,7 @@ passwordpolicy_sigterm(SIGNAL_ARGS)
 }
 
 /**
- * @brief Signal handler for SIGTERM
+ * @brief Signal handler for SIGHUP
  * @param signal_arg: signal number
  * @return void
  */
