@@ -26,6 +26,7 @@
 #endif
 
 #include "passwordpolicy_hash_history.h"
+#include "passwordpolicy_shmem.h"
 #include "passwordpolicy_vars.h"
 
 /* forward declaration private functions */
@@ -47,6 +48,10 @@ void passwordpolicy_check_password(const char *username, const char *shadow_pass
 {
   if (passwordpolicy_prev_check_password_hook)
     passwordpolicy_prev_check_password_hook(username, shadow_pass, password_type, validuntil_time, validuntil_null);
+
+  /* Safety check: ensure shared memory is ready before proceeding to history checks */
+  if (!passwordpolicy_shmem_check())
+    return;
 
   if (validuntil_null && guc_passwordpolicy_require_validuntil)
   {
