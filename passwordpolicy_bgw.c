@@ -34,7 +34,7 @@
 #include "passwordpolicy_vars.h"
 
 /* global settings */
-static bool PasswordPolicyReloadConfig = false;
+static volatile sig_atomic_t PasswordPolicyReloadConfig = false;
 
 /* flags set by signal handlers */
 static volatile sig_atomic_t got_sigterm = false;
