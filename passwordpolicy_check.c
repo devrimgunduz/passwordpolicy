@@ -232,7 +232,7 @@ static char *passwordpolicy_generate_sha256_hash(const char *input)
   SHA256_CTX ctx;
 #endif
 
-  input_hash = palloc0(mul_size(sizeof(char), PG_SHA256_DIGEST_STRING_LENGTH));
+  input_hash = palloc0(PG_SHA256_DIGEST_STRING_LENGTH);
 
 #if PG_VERSION_NUM >= 140000
   if ((ctx = pg_hmac_create(PG_SHA256)) == NULL)
