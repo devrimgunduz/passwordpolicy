@@ -118,7 +118,7 @@ void passwordpolicy_check_password(const char *username, const char *shadow_pass
     if (guc_passwordpolicy_enable_dict_check)
     {
       /* call cracklib to check password */
-      if ((reason = FascistCheck(password, CRACKLIB_DICTPATH)))
+      if ((reason = FascistCheck(password, guc_passwordpolicy_cracklib_dictpath)))
       {
         ereport(ERROR, (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                         errmsg("password is easily cracked."),

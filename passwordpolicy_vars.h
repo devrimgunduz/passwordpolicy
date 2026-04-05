@@ -32,6 +32,7 @@ extern int guc_passwordpolicy_min_number_char;
 extern int guc_passwordpolicy_min_spc_char;
 extern int guc_passwordpolicy_min_upper_char;
 extern bool guc_passwordpolicy_require_validuntil;
+extern char *guc_passwordpolicy_cracklib_dictpath;
 // GUC Auth Soft-lock
 extern int guc_passwordpolicy_lock_after;
 extern bool guc_passwordpolicy_lock_all_accounts;

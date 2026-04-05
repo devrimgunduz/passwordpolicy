@@ -73,6 +73,7 @@ Configure the `passwordpolicy` module in `postgresql.auto.conf`.
 | password_policy.min_uppercase_letter | number (>=0) | 1 | Minimum number of upper case letters |
 | password_policy.min_lowercase_letter | number (>=0) | 1 | Minimum number of lower case letters |
 | password_policy.require_validuntil | boolean | false | Requires a Valid Until when setting a password |
+| password_policy.cracklib_dictpath | string | /var/cache/cracklib/postgresql_dict | Path to the cracklib dictionary file |
 
 ### (optional) - Dictionary check
 If you want to use the dictionary check, you first need to create a dictionary

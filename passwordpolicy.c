@@ -92,6 +92,12 @@ void _PG_init(void)
       NULL, &guc_passwordpolicy_require_validuntil, false,
       PGC_SIGHUP, GUC_NOT_IN_SAMPLE | GUC_SUPERUSER_ONLY, NULL, NULL, NULL);
 
+  DefineCustomStringVariable(
+      "password_policy.cracklib_dictpath",
+      "Path to the cracklib dictionary file.",
+      NULL, &guc_passwordpolicy_cracklib_dictpath, "/var/cache/cracklib/postgresql_dict",
+      PGC_SIGHUP, GUC_NOT_IN_SAMPLE | GUC_SUPERUSER_ONLY, NULL, NULL, NULL);
+
   /* Account Soft-Lock */
   DefineCustomIntVariable(
       "password_policy_lock.max_number_accounts",

@@ -10,7 +10,7 @@ DATA = passwordpolicy--1.0.0.sql passwordpolicy--1.0.0--1.1.0.sql passwordpolicy
 REGRESS_OPTS = --inputdir=test --outputdir=test --load-extension=passwordpolicy --user=postgres
 REGRESS = passwordpolicy_test01 passwordpolicy_test02 passwordpolicy_test03 passwordpolicy_test04 passwordpolicy_test05
 
-PG_CFLAGS += -DUSE_CRACKLIB '-DCRACKLIB_DICTPATH="/var/cache/cracklib/postgresql_dict"'
+PG_CFLAGS += -DUSE_CRACKLIB
 SHLIB_LINK = -lcrack
 
 GCC_VERSION := $(shell gcc -dumpversion | cut -f1 -d.)

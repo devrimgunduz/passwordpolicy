@@ -19,6 +19,7 @@ int guc_passwordpolicy_min_number_char = 1;         // Default: 1
 int guc_passwordpolicy_min_upper_char = 1;          // Default: 1
 int guc_passwordpolicy_min_lower_char = 1;          // Default: 1
 bool guc_passwordpolicy_require_validuntil = false; // Default: false
+char *guc_passwordpolicy_cracklib_dictpath = NULL;
 // GUC Auth Soft-lock
 int guc_passwordpolicy_lock_after = 5;              // Default: 5
 bool guc_passwordpolicy_lock_all_accounts = true;   // Default: true
