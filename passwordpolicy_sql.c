@@ -37,7 +37,8 @@ Datum account_locked_reset(PG_FUNCTION_ARGS)
   char *usename;
   PasswordPolicyAccount *entry;
 
-  passwordpolicy_shmem_check();
+  if (!passwordpolicy_shmem_check())
+    ereport(ERROR, (errmsg("passwordpolicy shared memory not initialized")));
 
   if (!superuser())
     ereport(ERROR, (errmsg("only superuser can execute this function")));
@@ -78,7 +79,8 @@ Datum accounts_locked(PG_FUNCTION_ARGS)
   TupleDesc tupdesc;
   Tuplestorestate *tupstore;
 
-  passwordpolicy_shmem_check();
+  if (!passwordpolicy_shmem_check())
+    ereport(ERROR, (errmsg("passwordpolicy shared memory not initialized")));
 
   if (!superuser())
     ereport(ERROR, (errmsg("only superuser can execute this function")));
