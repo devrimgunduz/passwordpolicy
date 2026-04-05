@@ -79,7 +79,7 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
   }
 
   if (!result)
-  ereport(DEBUG3, (errmsg("passwordpolicy: password hash for account '%s' doesn't exist", username)));
+    ereport(DEBUG3, (errmsg("passwordpolicy: password hash for account '%s' doesn't exist", username)));
 
   return result;
 }
@@ -378,6 +378,7 @@ static void passwordpolicy_hash_history_add_internal(const char *username, const
   {
     ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' without password history", username)));
     strncpy(entry->key, username, NAMEDATALEN);
+    entry->key[NAMEDATALEN] = '\0';
     MemSet(entry->hashes, 0, mul_size(guc_passwordpolicy_history_max_num_entries, sizeof(PasswordPolicyHistoryHash)));
   }
 

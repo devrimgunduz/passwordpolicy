@@ -160,6 +160,7 @@ static void passwordpolicy_hash_accounts_add(const char *username)
   pg_atomic_init_u64(&(entry->deleted), 0);
   /* add key the last to avoid reading uninitialized values */
   strncpy(entry->key, username, NAMEDATALEN);
+  entry->key[NAMEDATALEN] = '\0';
 }
 
 /**
