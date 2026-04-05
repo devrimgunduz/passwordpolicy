@@ -188,7 +188,7 @@ error:
 
 typedef struct HistoryUpdate
 {
-  char username[NAMEDATALEN];
+  PasswordPolicyAccountKey username;
   char hash[PG_SHA256_DIGEST_STRING_LENGTH];
   TimestampTz changed_at;
   TimestampTz oldest_change; /* For cleanup */
@@ -298,7 +298,7 @@ void passwordpolicy_hash_history_save(void)
           // only insert if it's a new history entry
           if (num_updates < max_updates)
           {
-            strncpy(updates[num_updates].username, entry->key, NAMEDATALEN);
+            memcpy(updates[num_updates].username, entry->key, sizeof(PasswordPolicyAccountKey));
             strncpy(updates[num_updates].hash, entry->hashes[i].password_hash, PG_SHA256_DIGEST_STRING_LENGTH);
             updates[num_updates].changed_at = entry->hashes[i].changed_at;
             updates[num_updates].oldest_change = oldest_change;
