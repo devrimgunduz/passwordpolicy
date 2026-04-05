@@ -387,8 +387,9 @@ static void passwordpolicy_hash_history_add_internal(const char *username, const
   {
     if (entry->hashes[i].changed_at == 0)
     {
-      entry->hashes[i].changed_at = changed_at;
+      /* Write hash first, then timestamp to ensure reader visibility is safe */
       strcpy(entry->hashes[i].password_hash, password_hash);
+      entry->hashes[i].changed_at = changed_at;
       ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' password history set in '%d' '%ld'",
                               username, i, changed_at)));
       return;
@@ -404,7 +405,7 @@ static void passwordpolicy_hash_history_add_internal(const char *username, const
   {
     ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' password history overwritting '%s' '%ld'",
                             username, oldest_hash->password_hash, oldest_hash->changed_at)));
-    oldest_hash->changed_at = changed_at;
     strcpy(oldest_hash->password_hash, password_hash);
+    oldest_hash->changed_at = changed_at;
   }
 }
