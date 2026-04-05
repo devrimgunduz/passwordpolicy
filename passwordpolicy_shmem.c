@@ -122,7 +122,7 @@ static Size passwordpolicy_memsize(void)
 
   size = MAXALIGN(sizeof(PasswordPolicyShm));
   size = add_size(size, hash_estimate_size(guc_passwordpolicy_lock_max_num_accounts, sizeof(PasswordPolicyAccount)));
-  size = add_size(size, hash_estimate_size(guc_passwordpolicy_lock_max_num_accounts, history_entry_size));
+  size = add_size(size, hash_estimate_size(guc_passwordpolicy_history_max_num_accounts, history_entry_size));
 
   return size;
 }
