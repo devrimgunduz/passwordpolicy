@@ -155,12 +155,12 @@ static void passwordpolicy_hash_accounts_add(const char *username)
   }
 
   ereport(DEBUG2, (errmsg("passwordpolicy: adding account '%s' to auth lock", username)));
-  pg_atomic_init_u64(&(entry->failures), 0);
-  pg_atomic_init_u64(&(entry->last_failure), 0);
-  pg_atomic_init_u64(&(entry->deleted), 0);
-  /* add key the last to avoid reading uninitialized values */
+  pg_atomic_init_u64(&(entry->deleted), 1); /* Initialize as deleted/invalid first */
   strncpy(entry->key, username, NAMEDATALEN);
   entry->key[NAMEDATALEN] = '\0';
+  pg_atomic_init_u64(&(entry->failures), 0);
+  pg_atomic_init_u64(&(entry->last_failure), 0);
+  pg_atomic_write_u64(&(entry->deleted), 0); /* Commit entry for readers */
 }
 
 /**
