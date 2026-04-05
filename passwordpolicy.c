@@ -142,7 +142,7 @@ void _PG_init(void)
       NULL, &guc_passwordpolicy_history_max_num_entries, 5, 1, INT_MAX,
       PGC_POSTMASTER, GUC_NOT_IN_SAMPLE | GUC_SUPERUSER_ONLY, NULL, NULL, NULL);
 
-  EmitWarningsOnPlaceholders("pgauditlogtofile");
+  EmitWarningsOnPlaceholders("passwordpolicy");
 
   /* background worker */
   MemSet(&worker, 0, sizeof(BackgroundWorker));
