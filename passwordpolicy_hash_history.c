@@ -78,6 +78,7 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
     }
   }
 
+  if (!result)
   ereport(DEBUG3, (errmsg("passwordpolicy: password hash for account '%s' doesn't exist", username)));
 
   return result;
