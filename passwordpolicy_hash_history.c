@@ -269,7 +269,7 @@ void passwordpolicy_hash_history_save(void)
   }
 
   /* Allocate memory for updates to avoid SPI inside LWLock */
-  max_updates = guc_passwordpolicy_lock_max_num_accounts * guc_passwordpolicy_history_max_num_entries;
+  max_updates = guc_passwordpolicy_history_max_num_accounts * guc_passwordpolicy_history_max_num_entries;
   updates = (HistoryUpdate *)palloc(sizeof(HistoryUpdate) * max_updates);
 
   LWLockAcquire(passwordpolicy_lock_history, LW_SHARED);
