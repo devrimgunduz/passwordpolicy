@@ -76,10 +76,12 @@ void passwordpolicy_shmem_startup(void)
   LWLockAcquire(AddinShmemInitLock, LW_EXCLUSIVE);
 
   passwordpolicy_shm = ShmemInitStruct("passwordpolicy", sizeof(PasswordPolicyShm), &found);
+
+  passwordpolicy_lock_accounts = &(GetNamedLWLockTranche(TRANCHE_NAME_ACCOUNTS))->lock;
+  passwordpolicy_lock_history = &(GetNamedLWLockTranche(TRANCHE_NAME_HISTORY))->lock;
+
   if (!found)
   {
-    passwordpolicy_lock_accounts = &(GetNamedLWLockTranche(TRANCHE_NAME_ACCOUNTS))->lock;
-    passwordpolicy_lock_history = &(GetNamedLWLockTranche(TRANCHE_NAME_HISTORY))->lock;
     passwordpolicy_shm->lock = &(GetNamedLWLockTranche("passwordpolicy"))->lock;
     pg_atomic_init_flag(&(passwordpolicy_shm->flag_shutdown));
   }
