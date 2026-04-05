@@ -66,8 +66,6 @@ void PasswordPolicyBgwMain(Datum arg)
 
   ereport(LOG, (errmsg("passwordpolicy: background worker started")));
 
-  MemoryContextSwitchTo(PasswordPolicyContext);
-
   /* Connect to postgres as main user */
   BackgroundWorkerInitializeConnection("postgres", NULL, 0);
   /* Disable paralle query */
@@ -77,11 +75,10 @@ void PasswordPolicyBgwMain(Datum arg)
 
   while (1)
   {
+    int rc;
     MemoryContext oldContext;
     MemoryContextReset(PasswordPolicyContext);
     oldContext = MemoryContextSwitchTo(PasswordPolicyContext);
-
-    int rc;
 
     CHECK_FOR_INTERRUPTS();
 
