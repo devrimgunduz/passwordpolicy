@@ -96,12 +96,7 @@ void passwordpolicy_hash_history_init(void)
                                               guc_passwordpolicy_history_max_num_accounts,
                                               guc_passwordpolicy_history_max_num_accounts,
                                               &info,
-#if (PG_VERSION_NUM >= 140000)
-                                              HASH_ELEM | HASH_STRINGS
-#else
-                                              HASH_ELEM
-#endif
-  );
+                                              HASH_ELEM | HASH_STRINGS);
 }
 
 /**

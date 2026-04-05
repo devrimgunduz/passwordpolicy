@@ -16,9 +16,7 @@
 
 #include <catalog/namespace.h>
 #include <commands/user.h>
-#if (PG_VERSION_NUM >= 140000)
 #include <common/hmac.h>
-#endif
 #include <common/sha2.h>
 #include <fmgr.h>
 #include <utils/builtins.h>
@@ -223,17 +221,12 @@ static char *passwordpolicy_generate_sha256_hash(const char *input)
 {
   uint8 hash[SHA256_DIGEST_LENGTH];
   char *input_hash;
-#if PG_VERSION_NUM >= 140000
 #define KEY_SHA256 "passwordpolicy"
 #define KEY_SHA256_LEN strlen(KEY_SHA256)
   pg_hmac_ctx *ctx;
-#else
-  SHA256_CTX ctx;
-#endif
 
   input_hash = palloc0(PG_SHA256_DIGEST_STRING_LENGTH);
 
-#if PG_VERSION_NUM >= 140000
   if ((ctx = pg_hmac_create(PG_SHA256)) == NULL)
   {
     ereport(ERROR, (errmsg("error creating hmac sha256")));
@@ -250,17 +243,6 @@ static char *passwordpolicy_generate_sha256_hash(const char *input)
   }
 
   pg_hmac_free(ctx);
-#else
-  // Initialize the SHA-256 context
-  pg_sha256_init(&ctx);
-
-  // Update the context with the input data
-  pg_sha256_update(&ctx, (const uint8 *)input, strlen(input));
-
-  // Finalize the hash calculation
-  pg_sha256_final(&ctx, hash);
-
-#endif
 
   hex_encode((const char *)hash, SHA256_DIGEST_LENGTH, input_hash);
   input_hash[PG_SHA256_DIGEST_STRING_LENGTH - 1] = '\0';

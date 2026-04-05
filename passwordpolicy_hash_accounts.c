@@ -39,12 +39,7 @@ void passwordpolicy_hash_accounts_init(void)
                                                guc_passwordpolicy_lock_max_num_accounts,
                                                guc_passwordpolicy_lock_max_num_accounts,
                                                &info,
-#if (PG_VERSION_NUM >= 140000)
-                                               HASH_ELEM | HASH_STRINGS
-#else
-                                               HASH_ELEM
-#endif
-  );
+                                               HASH_ELEM | HASH_STRINGS);
 }
 
 /**
