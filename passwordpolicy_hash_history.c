@@ -60,11 +60,11 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
   entry = (PasswordPolicyHistory *)hash_search(passwordpolicy_hash_history, username, HASH_FIND, &found);
   if (!found)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' without password history", username)));
+    ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' without password history", username)));
     return false;
   }
 
-  ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' with password history", username)));
+  ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' with password history", username)));
 
   for (i = 0; i < guc_passwordpolicy_history_max_num_entries; i++)
   {
@@ -79,7 +79,7 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
   }
 
   if (!result)
-    ereport(DEBUG3, (errmsg("passwordpolicy: password hash for account '%s' doesn't exist", username)));
+    ereport(DEBUG2, (errmsg("passwordpolicy: password hash for account '%s' doesn't exist", username)));
 
   return result;
 }
@@ -130,7 +130,7 @@ void passwordpolicy_hash_history_load(void)
 
   if (SPI_processed == 0)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: extension is not installed, skipping password history")));
+    ereport(DEBUG2, (errmsg("passwordpolicy: extension is not installed, skipping password history")));
     goto error;
   }
 
@@ -220,7 +220,7 @@ void passwordpolicy_hash_history_save(void)
 
   if (strcmp(GetConfigOptionByName("transaction_read_only", NULL, false), "on") == 0)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: database is in read-only mode, skipping password history")));
+    ereport(DEBUG2, (errmsg("passwordpolicy: database is in read-only mode, skipping password history")));
     goto error;
   }
 
@@ -233,7 +233,7 @@ void passwordpolicy_hash_history_save(void)
 
   if (SPI_processed == 0)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: extension is not installed, skipping password history")));
+    ereport(DEBUG2, (errmsg("passwordpolicy: extension is not installed, skipping password history")));
     goto error;
   }
 
@@ -316,7 +316,7 @@ void passwordpolicy_hash_history_save(void)
   /* Perform SPI updates without holding LWLock */
   for (i = 0; i < num_updates; i++)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: inserting new entry for account '%s' into password history", updates[i].username)));
+    ereport(DEBUG2, (errmsg("passwordpolicy: inserting new entry for account '%s' into password history", updates[i].username)));
     pgstat_report_activity(STATE_RUNNING, "passwordpolicy insert history");
 
     params_insert[0] = CStringGetTextDatum(updates[i].username);
@@ -331,7 +331,7 @@ void passwordpolicy_hash_history_save(void)
     }
 
     // delete only if we have a new history entry for this user
-    ereport(DEBUG3, (errmsg("passwordpolicy: deleting old entries for account '%s' from password history", updates[i].username)));
+    ereport(DEBUG2, (errmsg("passwordpolicy: deleting old entries for account '%s' from password history", updates[i].username)));
     pgstat_report_activity(STATE_RUNNING, "passwordpolicy delete history");
     params_delete[0] = CStringGetTextDatum(updates[i].username);
     params_delete[1] = TimestampTzGetDatum(updates[i].oldest_change);
@@ -376,7 +376,7 @@ static void passwordpolicy_hash_history_add_internal(const char *username, const
 
   if (!found)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' without password history", username)));
+    ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' without password history", username)));
     strncpy(entry->key, username, NAMEDATALEN);
     entry->key[NAMEDATALEN] = '\0';
     MemSet(entry->hashes, 0, mul_size(guc_passwordpolicy_history_max_num_entries, sizeof(PasswordPolicyHistoryHash)));
@@ -389,7 +389,7 @@ static void passwordpolicy_hash_history_add_internal(const char *username, const
     {
       entry->hashes[i].changed_at = changed_at;
       strcpy(entry->hashes[i].password_hash, password_hash);
-      ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' password history set in '%d' '%ld'",
+      ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' password history set in '%d' '%ld'",
                               username, i, changed_at)));
       return;
     }
@@ -402,7 +402,7 @@ static void passwordpolicy_hash_history_add_internal(const char *username, const
 
   if (oldest_hash)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' password history overwritting '%s' '%ld'",
+    ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' password history overwritting '%s' '%ld'",
                             username, oldest_hash->password_hash, oldest_hash->changed_at)));
     oldest_hash->changed_at = changed_at;
     strcpy(oldest_hash->password_hash, password_hash);

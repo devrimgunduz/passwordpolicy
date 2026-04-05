@@ -246,7 +246,7 @@ static char *passwordpolicy_generate_sha256_hash(const char *input)
 
   hex_encode((const char *)hash, SHA256_DIGEST_LENGTH, input_hash);
   input_hash[PG_SHA256_DIGEST_STRING_LENGTH - 1] = '\0';
-  ereport(DEBUG3, (errmsg("passwordpolicy: password hash '%s'", input_hash)));
+  ereport(DEBUG2, (errmsg("passwordpolicy: password hash '%s'", input_hash)));
 
   return input_hash;
 }

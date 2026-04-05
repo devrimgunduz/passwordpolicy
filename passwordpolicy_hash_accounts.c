@@ -68,7 +68,7 @@ void passwordpolicy_hash_accounts_load(void)
 
   if (SPI_processed == 0)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: extension is not installed, skipping account auth checks")));
+    ereport(DEBUG2, (errmsg("passwordpolicy: extension is not installed, skipping account auth checks")));
     goto error;
   }
 
@@ -84,12 +84,12 @@ void passwordpolicy_hash_accounts_load(void)
 
   if (guc_passwordpolicy_lock_all_accounts)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: reading accounts from pg_user")));
+    ereport(DEBUG2, (errmsg("passwordpolicy: reading accounts from pg_user")));
     appendStringInfo(&buf, "SELECT usename FROM pg_user ORDER BY usename");
   }
   else
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: reading accounts from passwordpolicy.accounts_lockable")));
+    ereport(DEBUG2, (errmsg("passwordpolicy: reading accounts from passwordpolicy.accounts_lockable")));
     appendStringInfo(&buf, "SELECT usename FROM passwordpolicy.accounts_lockable ORDER BY usename");
   }
 
@@ -154,7 +154,7 @@ static void passwordpolicy_hash_accounts_add(const char *username)
     return;
   }
 
-  ereport(DEBUG3, (errmsg("passwordpolicy: adding account '%s' to auth lock", username)));
+  ereport(DEBUG2, (errmsg("passwordpolicy: adding account '%s' to auth lock", username)));
   pg_atomic_init_u64(&(entry->failures), 0);
   pg_atomic_init_u64(&(entry->last_failure), 0);
   pg_atomic_init_u64(&(entry->deleted), 0);
@@ -176,7 +176,7 @@ static void passwordpolicy_hash_accounts_hard_delete(void)
   {
     if (pg_atomic_read_u64(&(entry->deleted)) == 2)
     {
-      ereport(DEBUG3, (errmsg("passwordpolicy: (soft) removed account '%s' from auth lock", entry->key)));
+      ereport(DEBUG2, (errmsg("passwordpolicy: (soft) removed account '%s' from auth lock", entry->key)));
       pg_atomic_write_u64(&(entry->deleted), 1);
     }
   }

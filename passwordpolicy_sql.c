@@ -50,7 +50,7 @@ Datum account_locked_reset(PG_FUNCTION_ARGS)
   entry = (PasswordPolicyAccount *)hash_search(passwordpolicy_hash_accounts, usename, HASH_FIND, &found);
   if (found)
   {
-    ereport(DEBUG3, (errmsg("usename '%s' failures manually reset", usename)));
+    ereport(DEBUG2, (errmsg("usename '%s' failures manually reset", usename)));
     pg_atomic_write_u64(&(entry->failures), 0);
   }
   else
@@ -120,7 +120,7 @@ Datum accounts_locked(PG_FUNCTION_ARGS)
     values[0] = CStringGetDatum(entry->key);
     values[1] = Int64GetDatum(pg_atomic_read_u64(&(entry->failures)));
     last_failure = pg_atomic_read_u64(&(entry->last_failure));
-    ereport(DEBUG3, (errmsg("usename '%s' %ld", entry->key, last_failure)));
+    ereport(DEBUG2, (errmsg("usename '%s' %ld", entry->key, last_failure)));
     if (last_failure > 0)
       values[2] = TimestampTzGetDatum(last_failure);
     else

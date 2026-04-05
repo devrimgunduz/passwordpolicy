@@ -59,13 +59,13 @@ void passwordpolicy_client_authentication(Port *port, int status)
   entry = (PasswordPolicyAccount *)hash_search(passwordpolicy_hash_accounts, port->user_name, HASH_FIND, &found);
   if (!found)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' not found in account table", port->user_name)));
+    ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' not found in account table", port->user_name)));
     return;
   }
 
   if (pg_atomic_read_u64(&(entry->deleted)) == 1)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' marked for deletion, ignoring account", port->user_name)));
+    ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' marked for deletion, ignoring account", port->user_name)));
     return;
   }
 
@@ -82,7 +82,7 @@ void passwordpolicy_client_authentication(Port *port, int status)
       TimestampDifference(last_failure, GetCurrentTimestamp(), &secs, &microsecs);
       if (secs < guc_passwordpolicy_lock_auto_unlock_after)
       {
-        ereport(DEBUG3, (errmsg("passwordpolicy: maximum number of failed connections exceeded for '%s' and auto unlock time not passed",
+        ereport(DEBUG2, (errmsg("passwordpolicy: maximum number of failed connections exceeded for '%s' and auto unlock time not passed",
                                 port->user_name)));
         goto error;
       }
@@ -90,7 +90,7 @@ void passwordpolicy_client_authentication(Port *port, int status)
     else
     {
       // auto soft-unlock disabled
-      ereport(DEBUG3, (errmsg("passwordpolicy: maximum number of failed connections exceeded for '%s' and auto unlock disabled",
+      ereport(DEBUG2, (errmsg("passwordpolicy: maximum number of failed connections exceeded for '%s' and auto unlock disabled",
                               port->user_name)));
       goto error;
     }
@@ -98,14 +98,14 @@ void passwordpolicy_client_authentication(Port *port, int status)
 
   if (status == STATUS_OK)
   {
-    ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' failures reset", port->user_name)));
+    ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' failures reset", port->user_name)));
     pg_atomic_write_u64(&(entry->failures), 0);
   }
   else
   {
     failures = pg_atomic_add_fetch_u64(&(entry->failures), 1);
     pg_atomic_write_u64(&(entry->last_failure), GetCurrentTimestamp());
-    ereport(DEBUG3, (errmsg("passwordpolicy: account '%s' failures '%d/%d",
+    ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' failures '%d/%d",
                             port->user_name, failures, guc_passwordpolicy_lock_after)));
     if (failures >= guc_passwordpolicy_lock_after)
     {
