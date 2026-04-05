@@ -118,6 +118,8 @@ void passwordpolicy_hash_accounts_load(void)
   passwordpolicy_hash_accounts_hard_delete();
 
 error:
+  if (buf.data)
+    pfree(buf.data);
   SPI_finish();
   PopActiveSnapshot();
   CommitTransactionCommand();
