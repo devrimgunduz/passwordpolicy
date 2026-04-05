@@ -34,24 +34,15 @@
 static void passwordpolicy_check_password_policy(const char *password);
 static char *passwordpolicy_generate_sha256_hash(const char *input);
 
-/*
- * check_password
+/**
+ * @brief performs checks on an encrypted or unencrypted password ereport's if not acceptable
  *
- * performs checks on an encrypted or unencrypted password
- * ereport's if not acceptable
- *
- * username: name of role being created or changed
- * password: new password (possibly already encrypted)
- * password_type: PASSWORD_TYPE_PLAINTEXT or PASSWORD_TYPE_MD5 (there
- *			could be other encryption schemes in future)
- * validuntil_time: password expiration time, as a timestamptz Datum
- * validuntil_null: true if password expiration time is NULL
- *
- * This sample implementation doesn't pay any attention to the password
- * expiration time, but you might wish to insist that it be non-null and
- * not too far in the future.
+ * @param username name of role being created or changed
+ * @param shadow_pass new password (possibly already encrypted)
+ * @param password_type PASSWORD_TYPE_PLAINTEXT or PASSWORD_TYPE_MD5 (there could be other encryption schemes in future)
+ * @param validuntil_time: password expiration time, as a timestamptz Datum
+ * @param validuntil_null: true if password expiration time is NULL
  */
-
 void passwordpolicy_check_password(const char *username, const char *shadow_pass,
                                    PasswordType password_type, Datum validuntil_time,
                                    bool validuntil_null)
@@ -147,6 +138,9 @@ void passwordpolicy_check_password(const char *username, const char *shadow_pass
   /* all checks passed, password is ok */
 }
 
+/**
+ * @brief Assert that the password follows the defined policy
+ */
 static void passwordpolicy_check_password_policy(const char *password)
 {
   int i, pwdlen, letter_count, number_count, spc_char_count, upper_count, lower_count;
@@ -220,6 +214,11 @@ static void passwordpolicy_check_password_policy(const char *password)
   }
 }
 
+/**
+ * @brief Generates a SHA-256 hex-encoded hash of the input string.
+ * @param input password used in the authentication
+ * @return palloc'd string that should be freed by the caller.
+ */
 static char *passwordpolicy_generate_sha256_hash(const char *input)
 {
   uint8 hash[SHA256_DIGEST_LENGTH];

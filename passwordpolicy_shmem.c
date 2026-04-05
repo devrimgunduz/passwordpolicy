@@ -27,6 +27,10 @@
 /* Private functions forward declaration */
 static Size passwordpolicy_memsize(void);
 
+/**
+ * @brief Check if shared memory is initialized and not shutting down
+ * @return true if shared memory is available
+ */
 bool passwordpolicy_shmem_check(void)
 {
   return passwordpolicy_shm && passwordpolicy_hash_accounts &&

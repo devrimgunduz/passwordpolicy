@@ -19,6 +19,11 @@
 #include "passwordpolicy_shmem.h"
 #include "passwordpolicy_vars.h"
 
+/**
+ * @brief PostgreSQL client_authentication hook
+ * @param port
+ * @param status
+ */
 void passwordpolicy_client_authentication(Port *port, int status)
 {
   bool found;

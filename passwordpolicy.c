@@ -35,8 +35,9 @@ PG_MODULE_MAGIC;
 #include "passwordpolicy_shmem.h"
 #include "passwordpolicy_vars.h"
 
-/*
- * Module initialization function
+/**
+ * @brief Module initialization function
+ * Defines GUC variables, registers the background worker, and sets up hooks.
  */
 void _PG_init(void)
 {
@@ -180,6 +181,10 @@ void _PG_init(void)
   ClientAuthentication_hook = passwordpolicy_client_authentication;
 }
 
+/**
+ * @brief Module finalization function
+ * Unregisters hooks on module unload.
+ */
 void _PG_fini(void)
 {
   shmem_startup_hook = passwordpolicy_prev_shmem_startup_hook;

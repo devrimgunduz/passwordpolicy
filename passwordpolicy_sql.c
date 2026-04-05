@@ -23,11 +23,16 @@
 #define PASSWORD_POLICY_SQL_LOCKED_NUMC 3
 #define PASSWORD_POLICY_SQL_HISTORY_NUMC 3
 
-/* We don't need to return on error on functions */
-
 PG_FUNCTION_INFO_V1(account_locked_reset);
+
+/**
+ * @brief SQL function to manually reset the failure count for a specific user
+ * @param fcinfo
+ * @return Datum 0
+ */
 Datum account_locked_reset(PG_FUNCTION_ARGS)
 {
+  /* We don't need to return after doing ereport(ERROR) on functions, that automatically triggers it */
   bool found;
   char *usename;
   PasswordPolicyAccount *entry;
@@ -57,6 +62,12 @@ Datum account_locked_reset(PG_FUNCTION_ARGS)
 }
 
 PG_FUNCTION_INFO_V1(accounts_locked);
+
+/**
+ * @brief SQL function to list all accounts currently tracked for soft-locking
+ * @param fcinfo
+ * @return Datum containing the set of locked accounts
+ */
 Datum accounts_locked(PG_FUNCTION_ARGS)
 {
   HASH_SEQ_STATUS hash_seq;

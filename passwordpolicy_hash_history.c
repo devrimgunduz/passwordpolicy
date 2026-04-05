@@ -26,6 +26,14 @@
 /* forward declaration private functions */
 static void passwordpolicy_hash_history_add_internal(const char *username, const char *password_hash, const TimestampTz changed_at);
 
+/* Public functions */
+
+/**
+ * @brief Register a password change in the account history.
+ * @param username
+ * @param password_hash
+ * @param changed_at
+ */
 void passwordpolicy_hash_history_add(const char *username, const char *password_hash, const TimestampTz changed_at)
 {
   LWLockAcquire(passwordpolicy_lock_history, LW_EXCLUSIVE);
@@ -33,6 +41,12 @@ void passwordpolicy_hash_history_add(const char *username, const char *password_
   LWLockRelease(passwordpolicy_lock_history);
 }
 
+/**
+ * @brief Check if a password hash exists in the user's password history
+ * @param username
+ * @param password_hash
+ * @return true if the hash is found in history
+ */
 bool passwordpolicy_hash_history_exists(const char *username, const char *password_hash)
 {
   bool found;
@@ -69,6 +83,9 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
   return result;
 }
 
+/**
+ * @brief Initialize the shared hash table for password history
+ */
 void passwordpolicy_hash_history_init(void)
 {
   HASHCTL info;
@@ -87,6 +104,9 @@ void passwordpolicy_hash_history_init(void)
   );
 }
 
+/**
+ * @brief Load password history from the database table into shared memory
+ */
 void passwordpolicy_hash_history_load(void)
 {
   bool isnull;
@@ -178,6 +198,9 @@ typedef struct HistoryUpdate
   TimestampTz oldest_change; /* For cleanup */
 } HistoryUpdate;
 
+/**
+ * @brief Save the current password history from shared memory to the database table
+ */
 void passwordpolicy_hash_history_save(void)
 {
   char *sql_delete, *sql_insert;

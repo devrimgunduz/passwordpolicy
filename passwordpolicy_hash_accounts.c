@@ -26,6 +26,9 @@ static void passwordpolicy_hash_accounts_add(const char *username);
 static void passwordpolicy_hash_accounts_hard_delete(void);
 static void passwordpolicy_hash_accounts_soft_delete(void);
 
+/**
+ * @brief init the hash table to store accounts
+ */
 void passwordpolicy_hash_accounts_init(void)
 {
   HASHCTL info;
@@ -44,6 +47,9 @@ void passwordpolicy_hash_accounts_init(void)
   );
 }
 
+/**
+ * @brief load the existing accounts in the hash table
+ */
 void passwordpolicy_hash_accounts_load(void)
 {
   int ret, i;
@@ -125,6 +131,11 @@ error:
 }
 
 /* PRIVATE FUNCTIONS */
+
+/**
+ * @brief Add an account to the hash table.
+ * @param username account usename
+ */
 static void passwordpolicy_hash_accounts_add(const char *username)
 {
   bool found;
@@ -156,9 +167,9 @@ static void passwordpolicy_hash_accounts_add(const char *username)
   strncpy(entry->key, username, NAMEDATALEN);
 }
 
-/*
+/**
  * @brief Mark all the entries still marked for soft-deletion as deleted (1)
- **/
+ */
 static void passwordpolicy_hash_accounts_hard_delete(void)
 {
   HASH_SEQ_STATUS hash_seq;
@@ -175,9 +186,9 @@ static void passwordpolicy_hash_accounts_hard_delete(void)
   }
 }
 
-/*
+/**
  * @brief Mark all the active entries as candidate to soft-deletion (2)
- **/
+ */
 static void passwordpolicy_hash_accounts_soft_delete(void)
 {
   HASH_SEQ_STATUS hash_seq;
