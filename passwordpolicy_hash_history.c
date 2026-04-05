@@ -57,6 +57,8 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
   if (username == NULL)
     return false;
 
+  LWLockAcquire(passwordpolicy_lock_history, LW_SHARED);
+
   entry = (PasswordPolicyHistory *)hash_search(passwordpolicy_hash_history, username, HASH_FIND, &found);
   if (!found)
   {
@@ -66,6 +68,7 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
 
   ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' with password history", username)));
 
+  /* We can keep the lock or copy the data; given the small array size, staying in the lock is fine */
   for (i = 0; i < guc_passwordpolicy_history_max_num_entries; i++)
   {
     if (entry->hashes[i].changed_at != 0)
@@ -77,6 +80,8 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
       }
     }
   }
+
+  LWLockRelease(passwordpolicy_lock_history);
 
   if (!result)
     ereport(DEBUG2, (errmsg("passwordpolicy: password hash for account '%s' doesn't exist", username)));
