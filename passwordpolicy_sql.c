@@ -20,8 +20,8 @@
 #include "passwordpolicy_shmem.h"
 #include "passwordpolicy_vars.h"
 
-#define PASSWORD_POLICY_SQL_LOCKED_NUMC 3
-#define PASSWORD_POLICY_SQL_HISTORY_NUMC 3
+#define PASSWORD_POLICY_SQL_LOCKED_NUM_COLS 3
+#define PASSWORD_POLICY_SQL_HISTORY_NUM_COLS 3
 
 PG_FUNCTION_INFO_V1(account_locked_reset);
 
@@ -112,8 +112,8 @@ Datum accounts_locked(PG_FUNCTION_ARGS)
   hash_seq_init(&hash_seq, passwordpolicy_hash_accounts);
   while ((entry = (PasswordPolicyAccount *)hash_seq_search(&hash_seq)) != NULL)
   {
-    Datum values[PASSWORD_POLICY_SQL_LOCKED_NUMC];
-    bool nulls[PASSWORD_POLICY_SQL_LOCKED_NUMC];
+    Datum values[PASSWORD_POLICY_SQL_LOCKED_NUM_COLS];
+    bool nulls[PASSWORD_POLICY_SQL_LOCKED_NUM_COLS];
     TimestampTz last_failure;
 
     memset(values, 0, sizeof(values));
