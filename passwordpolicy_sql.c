@@ -107,7 +107,7 @@ Datum accounts_locked(PG_FUNCTION_ARGS)
 
   MemoryContextSwitchTo(oldcontext);
 
-  LWLockAcquire(passwordpolicy_lock_accounts, LW_SHARED);
+  LWLockAcquire(passwordpolicy_shm->lock_accounts, LW_SHARED);
 
   hash_seq_init(&hash_seq, passwordpolicy_hash_accounts);
   while ((entry = (PasswordPolicyAccount *)hash_seq_search(&hash_seq)) != NULL)
@@ -131,7 +131,7 @@ Datum accounts_locked(PG_FUNCTION_ARGS)
     tuplestore_putvalues(tupstore, tupdesc, values, nulls);
   }
 
-  LWLockRelease(passwordpolicy_lock_accounts);
+  LWLockRelease(passwordpolicy_shm->lock_accounts);
 
   PG_RETURN_INT32(0);
 }

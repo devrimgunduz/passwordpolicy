@@ -36,9 +36,9 @@ static void passwordpolicy_hash_history_add_internal(const char *username, const
  */
 void passwordpolicy_hash_history_add(const char *username, const char *password_hash, const TimestampTz changed_at)
 {
-  LWLockAcquire(passwordpolicy_lock_history, LW_EXCLUSIVE);
+  LWLockAcquire(passwordpolicy_shm->lock_history, LW_EXCLUSIVE);
   passwordpolicy_hash_history_add_internal(username, password_hash, changed_at);
-  LWLockRelease(passwordpolicy_lock_history);
+  LWLockRelease(passwordpolicy_shm->lock_history);
 }
 
 /**
@@ -57,7 +57,7 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
   if (username == NULL)
     return false;
 
-  LWLockAcquire(passwordpolicy_lock_history, LW_SHARED);
+  LWLockAcquire(passwordpolicy_shm->lock_history, LW_SHARED);
 
   entry = (PasswordPolicyHistory *)hash_search(passwordpolicy_hash_history, username, HASH_FIND, &found);
   if (!found)
@@ -81,7 +81,7 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
     }
   }
 
-  LWLockRelease(passwordpolicy_lock_history);
+  LWLockRelease(passwordpolicy_shm->lock_history);
 
   if (!result)
     ereport(DEBUG2, (errmsg("passwordpolicy: password hash for account '%s' doesn't exist", username)));
@@ -170,18 +170,18 @@ void passwordpolicy_hash_history_load(void)
 
   pgstat_report_activity(STATE_RUNNING, "passwordpolicy loading history");
 
-  LWLockAcquire(passwordpolicy_lock_history, LW_EXCLUSIVE);
-  passwordpolicy_hash_history_last_save = 0;
+  LWLockAcquire(passwordpolicy_shm->lock_history, LW_EXCLUSIVE);
+  passwordpolicy_shm->hash_history_last_save = 0;
   for (i = 0; i < SPI_processed; i++)
   {
     changed_at = DatumGetTimestampTz(SPI_getbinval(tuptable->vals[i], tupdesc, 3, &isnull));
     passwordpolicy_hash_history_add_internal(SPI_getvalue(tuptable->vals[i], tupdesc, 1),
                                              SPI_getvalue(tuptable->vals[i], tupdesc, 2),
                                              changed_at);
-    if (changed_at > passwordpolicy_hash_history_last_save)
-      passwordpolicy_hash_history_last_save = changed_at;
+    if (changed_at > passwordpolicy_shm->hash_history_last_save)
+      passwordpolicy_shm->hash_history_last_save = changed_at;
   }
-  LWLockRelease(passwordpolicy_lock_history);
+  LWLockRelease(passwordpolicy_shm->lock_history);
 
 error:
   SPI_finish();
@@ -277,8 +277,8 @@ void passwordpolicy_hash_history_save(void)
   max_updates = guc_passwordpolicy_history_max_num_accounts * guc_passwordpolicy_history_max_num_entries;
   updates = (HistoryUpdate *)palloc(sizeof(HistoryUpdate) * max_updates);
 
-  LWLockAcquire(passwordpolicy_lock_history, LW_SHARED);
-  newest_change = passwordpolicy_hash_history_last_save;
+  LWLockAcquire(passwordpolicy_shm->lock_history, LW_SHARED);
+  newest_change = passwordpolicy_shm->hash_history_last_save;
   hash_seq_init(&hash_seq, passwordpolicy_hash_history);
   while ((entry = (PasswordPolicyHistory *)hash_seq_search(&hash_seq)) != NULL)
   {
@@ -298,7 +298,7 @@ void passwordpolicy_hash_history_save(void)
     {
       if (entry->hashes[i].changed_at != 0)
       {
-        if (entry->hashes[i].changed_at > passwordpolicy_hash_history_last_save)
+        if (entry->hashes[i].changed_at > passwordpolicy_shm->hash_history_last_save)
         {
           // only insert if it's a new history entry
           if (num_updates < max_updates)
@@ -316,7 +316,7 @@ void passwordpolicy_hash_history_save(void)
       }
     }
   }
-  LWLockRelease(passwordpolicy_lock_history);
+  LWLockRelease(passwordpolicy_shm->lock_history);
 
   /* Perform SPI updates without holding LWLock */
   for (i = 0; i < num_updates; i++)
@@ -348,7 +348,7 @@ void passwordpolicy_hash_history_save(void)
     }
   }
 
-  passwordpolicy_hash_history_last_save = newest_change;
+  passwordpolicy_shm->hash_history_last_save = newest_change;
 
 error:
   SPI_finish();

@@ -75,9 +75,9 @@ void passwordpolicy_hash_accounts_load(void)
   pgstat_report_activity(STATE_RUNNING, "passwordpolicy soft-deleting accounts");
 
   /* Mark all the accounts for deletion with shared lock */
-  LWLockAcquire(passwordpolicy_lock_accounts, LW_SHARED);
+  LWLockAcquire(passwordpolicy_shm->lock_accounts, LW_SHARED);
   passwordpolicy_hash_accounts_soft_delete();
-  LWLockRelease(passwordpolicy_lock_accounts);
+  LWLockRelease(passwordpolicy_shm->lock_accounts);
 
   pgstat_report_activity(STATE_RUNNING, "passwordpolicy reading accounts");
   initStringInfo(&buf);
@@ -106,12 +106,12 @@ void passwordpolicy_hash_accounts_load(void)
   pgstat_report_activity(STATE_RUNNING, "passwordpolicy adding accounts");
 
   /* Add accounts: we don't need an exclusive lock, existing entries don't change address */
-  LWLockAcquire(passwordpolicy_lock_accounts, LW_SHARED);
+  LWLockAcquire(passwordpolicy_shm->lock_accounts, LW_SHARED);
   for (i = 0; i < SPI_processed; i++)
   {
     passwordpolicy_hash_accounts_add(SPI_getvalue(tuptable->vals[i], tupdesc, 1));
   }
-  LWLockRelease(passwordpolicy_lock_accounts);
+  LWLockRelease(passwordpolicy_shm->lock_accounts);
 
   pgstat_report_activity(STATE_RUNNING, "passwordpolicy hard-deleting accounts");
   /* mark as deleted entries not present */

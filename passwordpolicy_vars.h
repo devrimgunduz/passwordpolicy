@@ -72,17 +72,16 @@ typedef struct PasswordPolicyHistory
 
 typedef struct PasswordPolicyShm
 {
-  LWLock *lock;
+  LWLock *lock_accounts;
+  LWLock *lock_history;
   pg_atomic_flag flag_shutdown;
+  TimestampTz hash_history_last_save;
 } PasswordPolicyShm;
 
 // Shared Memory
 extern PasswordPolicyShm *passwordpolicy_shm;
 extern HTAB *passwordpolicy_hash_accounts;
 extern HTAB *passwordpolicy_hash_history;
-extern TimestampTz passwordpolicy_hash_history_last_save;
-extern LWLock *passwordpolicy_lock_accounts;
-extern LWLock *passwordpolicy_lock_history;
 
 // Shared Memory - Hook
 extern shmem_startup_hook_type passwordpolicy_prev_shmem_startup_hook;
