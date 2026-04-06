@@ -50,7 +50,7 @@ void passwordpolicy_hash_accounts_load(void)
   int ret, i;
   TupleDesc tupdesc;
   SPITupleTable *tuptable;
-  StringInfoData buf;
+  StringInfoData buf = {0};
 
   SetCurrentStatementStartTimestamp();
   StartTransactionCommand();
