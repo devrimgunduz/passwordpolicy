@@ -183,6 +183,13 @@ static void passwordpolicy_check_password_policy(const char *password)
     }
   }
 
+  ereport(DEBUG2, errmsg("passwordpolicy: password has length: %d, number: %d, special: %d, upper: %d, lower: %d",
+                         pwdlen, number_count, spc_char_count, upper_count, lower_count));
+
+  ereport(DEBUG2, errmsg("passwordpolicy: password policy has length: %d, number: %d, special: %d, upper: %d, lower: %d",
+                         guc_passwordpolicy_min_length, guc_passwordpolicy_min_number_char,
+                         guc_passwordpolicy_min_spc_char, guc_passwordpolicy_min_upper_char, guc_passwordpolicy_min_lower_char));
+
   if (number_count < guc_passwordpolicy_min_number_char)
   {
     ereport(ERROR,
