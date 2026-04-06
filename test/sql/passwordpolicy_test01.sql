@@ -1,15 +1,26 @@
-LOAD 'passwordpolicy';
+-- Reset
+\i test/sql/common/reset.sql
 
-ALTER SYSTEM SET password_policy.min_uppercase_letter = 1;
+DROP USER IF EXISTS test01;
 
-ALTER SYSTEM SET password_policy.min_lowercase_letter = 1;
+-- Fails
+CREATE USER test01 WITH PASSWORD 'aaaa';
 
-ALTER SYSTEM SET password_policy.min_special_chars = 1;
+-- Fails
+CREATE USER test01 WITH PASSWORD 'aaaaaaaaaaaaaaa';
 
-ALTER SYSTEM SET password_policy.min_numbers = 1;
+-- Fails
+CREATE USER test01 WITH PASSWORD 'aaaaaaaaaaaaaaa1234';
 
-ALTER SYSTEM SET password_policy.min_password_len = 15;
+-- Fails
+CREATE USER test01 WITH PASSWORD 'aaaaaaaaaaaaaaa#*#134';
 
-SELECT pg_reload_conf();
+-- Works
+CREATE USER test01 WITH PASSWORD 'ASWaaaaaaaaasdf#*#134';
+
+-- Reset
+\i test/sql/common/reset.sql
+
+DROP USER IF EXISTS test01;
 
 ;

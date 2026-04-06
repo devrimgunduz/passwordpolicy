@@ -1,17 +1,32 @@
-CREATE EXTENSION IF NOT EXISTS passwordpolicy;
+-- Reset
+\i test/sql/common/reset.sql
 
-DROP USER IF EXISTS test_history;
+DROP USER IF EXISTS test05;
 
-CREATE USER test_history WITH PASSWORD 'ASWaaaaaaaaasdf#*#134';
+-- Validate password history
+-- ok
+CREATE USER test05 WITH PASSWORD 'ASWaaaaaaaaasdf#*#134';
 
-ALTER USER test_history WITH PASSWORD 'ASWaaaaaaaaasdf#*#135';
+SELECT pg_sleep(1);
 
-ALTER USER test_history WITH PASSWORD 'ASWaaaaaaaaasdf#*#136';
+-- Ok
+ALTER USER test05 WITH PASSWORD 'ASWaaaaaaaaasdf#*#135';
 
-ALTER USER test_history WITH PASSWORD 'ASWaaaaaaaaasdf#*#134';
+SELECT pg_sleep(1);
 
-DROP USER IF EXISTS test_history;
+-- Ok
+ALTER USER test05 WITH PASSWORD 'ASWaaaaaaaaasdf#*#136';
 
-DROP EXTENSION IF EXISTS passwordpolicy;
+SELECT pg_sleep(1);
+
+-- Fails
+ALTER USER test05 WITH PASSWORD 'ASWaaaaaaaaasdf#*#134';
+
+SELECT pg_sleep(1);
+
+-- Reset
+\i test/sql/common/reset.sql
+
+DROP USER IF EXISTS test05;
 
 ;

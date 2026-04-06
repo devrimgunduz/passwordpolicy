@@ -1,15 +1,24 @@
-DROP USER IF EXISTS test_pass;
+-- Reset
+\i test/sql/common/reset.sql
 
-CREATE USER test_pass WITH PASSWORD 'aaaa';
+DROP USER IF EXISTS test02;
 
-CREATE USER test_pass WITH PASSWORD 'aaaaaaaaaaaaaaa';
+-- Validate that the user requires VALID
+ALTER SYSTEM SET password_policy.require_validuntil = true;
 
-CREATE USER test_pass WITH PASSWORD 'aaaaaaaaaaaaaaa1234';
+SELECT pg_reload_conf();
 
-CREATE USER test_pass WITH PASSWORD 'aaaaaaaaaaaaaaa#*#134';
+SELECT current_setting('password_policy.require_validuntil');
 
-CREATE USER test_pass WITH PASSWORD 'ASWaaaaaaaaasdf#*#134';
+-- Fails
+CREATE USER test02 WITH PASSWORD 'ASWaaaaaaaaasdf#*#134';
 
-DROP USER IF EXISTS test_pass;
+-- Works
+CREATE USER test02 WITH PASSWORD 'ASWaaaaaaaaasdf#*#134' VALID UNTIL '2099-12-31';
+
+-- Reset
+\i test/sql/common/reset.sql
+
+DROP USER IF EXISTS test02;
 
 ;
