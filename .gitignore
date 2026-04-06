@@ -9,3 +9,5 @@ test/regression.out
 test/results
 
 /.vscode
+
+passwordpolicy.control

@@ -26,7 +26,11 @@
 
 #include <utils/guc.h>
 
-PG_MODULE_MAGIC;
+#ifdef PG_MODULE_MAGIC_EXT // Added in 18
+PG_MODULE_MAGIC_EXT(.name = "passwordpolicy", .version = EXTVERSION);
+#else
+PG_MODULE_MAGIC; // For PostgreSQL versions < 18
+#endif
 
 #include "passwordpolicy.h"
 #include "passwordpolicy_auth.h"
