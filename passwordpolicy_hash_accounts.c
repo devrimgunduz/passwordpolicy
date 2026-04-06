@@ -74,10 +74,8 @@ void passwordpolicy_hash_accounts_load(void)
 
   pgstat_report_activity(STATE_RUNNING, "passwordpolicy soft-deleting accounts");
 
-  /* Mark all the accounts for deletion with shared lock */
-  LWLockAcquire(passwordpolicy_shm->lock_accounts, LW_SHARED);
+  /* Mark all the accounts for soft-delete */
   passwordpolicy_hash_accounts_soft_delete();
-  LWLockRelease(passwordpolicy_shm->lock_accounts);
 
   pgstat_report_activity(STATE_RUNNING, "passwordpolicy reading accounts");
   initStringInfo(&buf);
@@ -105,13 +103,10 @@ void passwordpolicy_hash_accounts_load(void)
 
   pgstat_report_activity(STATE_RUNNING, "passwordpolicy adding accounts");
 
-  /* Add accounts: we don't need an exclusive lock, existing entries don't change address */
-  LWLockAcquire(passwordpolicy_shm->lock_accounts, LW_SHARED);
   for (i = 0; i < SPI_processed; i++)
   {
     passwordpolicy_hash_accounts_add(SPI_getvalue(tuptable->vals[i], tupdesc, 1));
   }
-  LWLockRelease(passwordpolicy_shm->lock_accounts);
 
   pgstat_report_activity(STATE_RUNNING, "passwordpolicy hard-deleting accounts");
   /* mark as deleted entries not present */
@@ -141,15 +136,19 @@ static void passwordpolicy_hash_accounts_add(const char *username)
   if (username == NULL)
     return;
 
+  LWLockAcquire(passwordpolicy_shm->lock_accounts, LW_EXCLUSIVE);
   entry = (PasswordPolicyAccount *)hash_search(passwordpolicy_hash_accounts, username, HASH_ENTER_NULL, &found);
   if (found)
   {
     pg_atomic_write_u64(&(entry->deleted), 0);
+    LWLockRelease(passwordpolicy_shm->lock_accounts);
+    ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' already in auth lock", username)));
     return;
   }
 
   if (entry == NULL)
   {
+    LWLockRelease(passwordpolicy_shm->lock_accounts);
     ereport(ERROR, (errcode(ERRCODE_OUT_OF_MEMORY),
                     errmsg("passwordpolicy: not enough shared memory to add accounts to auth lock"),
                     errhint("increase the value of password_policy_lock.max_number_accounts")));
@@ -163,6 +162,7 @@ static void passwordpolicy_hash_accounts_add(const char *username)
   pg_atomic_init_u64(&(entry->failures), 0);
   pg_atomic_init_u64(&(entry->last_failure), 0);
   pg_atomic_write_u64(&(entry->deleted), 0); /* Commit entry for readers */
+  LWLockRelease(passwordpolicy_shm->lock_accounts);
 }
 
 /**
@@ -173,6 +173,7 @@ static void passwordpolicy_hash_accounts_hard_delete(void)
   HASH_SEQ_STATUS hash_seq;
   PasswordPolicyAccount *entry;
 
+  LWLockAcquire(passwordpolicy_shm->lock_accounts, LW_SHARED);
   hash_seq_init(&hash_seq, passwordpolicy_hash_accounts);
   while ((entry = (PasswordPolicyAccount *)hash_seq_search(&hash_seq)) != NULL)
   {
@@ -182,6 +183,7 @@ static void passwordpolicy_hash_accounts_hard_delete(void)
       pg_atomic_write_u64(&(entry->deleted), 1);
     }
   }
+  LWLockRelease(passwordpolicy_shm->lock_accounts);
 }
 
 /**
@@ -192,10 +194,12 @@ static void passwordpolicy_hash_accounts_soft_delete(void)
   HASH_SEQ_STATUS hash_seq;
   PasswordPolicyAccount *entry;
 
+  LWLockAcquire(passwordpolicy_shm->lock_accounts, LW_SHARED);
   hash_seq_init(&hash_seq, passwordpolicy_hash_accounts);
   while ((entry = (PasswordPolicyAccount *)hash_seq_search(&hash_seq)) != NULL)
   {
     if (pg_atomic_read_u64(&(entry->deleted)) == 0)
       pg_atomic_write_u64(&(entry->deleted), 2);
   }
+  LWLockRelease(passwordpolicy_shm->lock_accounts);
 }
