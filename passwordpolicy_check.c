@@ -147,11 +147,10 @@ void passwordpolicy_check_password(const char *username, const char *shadow_pass
  */
 static void passwordpolicy_check_password_policy(const char *password)
 {
-  int i, pwdlen, letter_count, number_count, spc_char_count, upper_count, lower_count;
+  int i, pwdlen, number_count, spc_char_count, upper_count, lower_count;
 
   pwdlen = strlen(password);
 
-  letter_count = 0;
   number_count = 0;
   spc_char_count = 0;
   upper_count = 0;
@@ -165,7 +164,6 @@ static void passwordpolicy_check_password_policy(const char *password)
      */
     if (isalpha((unsigned char)password[i]))
     {
-      letter_count++;
       if (isupper((unsigned char)password[i]))
       {
         upper_count++;
