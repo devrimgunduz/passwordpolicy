@@ -66,6 +66,7 @@ Configure the `passwordpolicy` module in `postgresql.auto.conf`.
 ### Password Checks
 | GUC | Data Type | Default Value | Explanation |
 |---|---|---|---|
+| password_policy.cracklib_dictpath | string | /var/cache/cracklib/postgresql_dict | Path to the cracklib dictionary file |
 | password_policy.enable_dictionary_check | boolean | false | Enable password checks against a dictionary |
 | password_policy.min_password_len | number (>0) | 15 | Minimum password length |
 | password_policy.min_special_chars | number (>=0) | 1 | Minimum number of non alpha-numeric characters |
@@ -73,7 +74,6 @@ Configure the `passwordpolicy` module in `postgresql.auto.conf`.
 | password_policy.min_uppercase_letter | number (>=0) | 1 | Minimum number of upper case letters |
 | password_policy.min_lowercase_letter | number (>=0) | 1 | Minimum number of lower case letters |
 | password_policy.require_validuntil | boolean | false | Requires a Valid Until when setting a password |
-| password_policy.cracklib_dictpath | string | /var/cache/cracklib/postgresql_dict | Path to the cracklib dictionary file |
 
 ### (optional) - Dictionary check
 If you want to use the dictionary check, you first need to create a dictionary
@@ -161,7 +161,12 @@ When the number of password changes per user exceeds ```password_policy_history.
 
 ## Testing
 
-Using vagrant:
+### Using a test database
+```bash
+make installcheck
+```
+
+### Using vagrant:
 
 ```bash
 vagrant up

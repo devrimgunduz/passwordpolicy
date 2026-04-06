@@ -8,7 +8,7 @@ PGFILEDESC = "passwordpolicy - user password checks"
 DATA = passwordpolicy--1.0.0.sql passwordpolicy--1.0.0--1.1.0.sql passwordpolicy--1.1.0--2.0.0.sql passwordpolicy--2.0.0--2.0.1.sql passwordpolicy--2.0.1--2.0.2.sql passwordpolicy--2.0.2--2.0.3.sql passwordpolicy--2.0.3--2.0.4.sql passwordpolicy--2.0.4--2.0.5.sql
 
 REGRESS_OPTS = --inputdir=test --outputdir=test --load-extension=passwordpolicy --user=postgres
-REGRESS = passwordpolicy_test01 passwordpolicy_test02 passwordpolicy_test03 passwordpolicy_test04 passwordpolicy_test05
+REGRESS = passwordpolicy_test01 passwordpolicy_test02 passwordpolicy_test03 passwordpolicy_test04 passwordpolicy_test05 passwordpolicy_test06
 
 PG_CFLAGS += -DUSE_CRACKLIB
 SHLIB_LINK = -lcrack
