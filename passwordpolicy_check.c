@@ -128,6 +128,7 @@ void passwordpolicy_check_password(const char *username, const char *shadow_pass
       {
         if (passwordpolicy_hash_history_exists(username, password_hash))
         {
+          pfree(password_hash);
           ereport(ERROR, (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                           errmsg("password cannot be one of the last %d password used.",
                                  guc_passwordpolicy_history_max_num_entries)));
