@@ -63,6 +63,7 @@ bool passwordpolicy_hash_history_exists(const char *username, const char *passwo
   if (!found)
   {
     ereport(DEBUG2, (errmsg("passwordpolicy: account '%s' without password history", username)));
+    LWLockRelease(passwordpolicy_shm->lock_history);
     return false;
   }
 
