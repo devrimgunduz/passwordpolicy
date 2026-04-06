@@ -11,3 +11,5 @@ CREATE USER test_pass WITH PASSWORD 'aaaaaaaaaaaaaaa#*#134';
 CREATE USER test_pass WITH PASSWORD 'ASWaaaaaaaaasdf#*#134';
 
 DROP USER IF EXISTS test_pass;
+
+;
