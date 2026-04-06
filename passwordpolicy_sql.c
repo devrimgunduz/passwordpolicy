@@ -48,14 +48,17 @@ Datum account_locked_reset(PG_FUNCTION_ARGS)
 
   usename = PG_GETARG_CSTRING(0);
 
+  LWLockAcquire(passwordpolicy_shm->lock_accounts, LW_SHARED);
   entry = (PasswordPolicyAccount *)hash_search(passwordpolicy_hash_accounts, usename, HASH_FIND, &found);
   if (found)
   {
     ereport(DEBUG2, (errmsg("usename '%s' failures manually reset", usename)));
     pg_atomic_write_u64(&(entry->failures), 0);
+    LWLockRelease(passwordpolicy_shm->lock_accounts);
   }
   else
   {
+    LWLockRelease(passwordpolicy_shm->lock_accounts);
     ereport(ERROR, (errmsg("usename '%s' not found in lockable list", usename)));
   }
 
