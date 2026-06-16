@@ -48,13 +48,26 @@ static void passwordpolicy_sigterm(SIGNAL_ARGS);
  * @param arg: unused
  * @return void
  */
+#if (PG_VERSION_NUM >= 190000)
+static void
+passwordpolicy_sigint_ign(SIGNAL_ARGS)
+{
+  /* no-op: replaces SIG_IGN for pqsignal() in PG 19+ where pqsigfunc
+   * gained a second argument, making the libc SIG_IGN incompatible */
+}
+#endif
+
 void PasswordPolicyBgwMain(Datum arg)
 {
   int sleep_ms = SECS_PER_MINUTE * 1000;
   MemoryContext PasswordPolicyContext = NULL;
 
   pqsignal(SIGHUP, passwordpolicy_sighup);
+#if (PG_VERSION_NUM >= 190000)
+  pqsignal(SIGINT, passwordpolicy_sigint_ign);
+#else
   pqsignal(SIGINT, SIG_IGN);
+#endif
   pqsignal(SIGTERM, passwordpolicy_sigterm);
 
   BackgroundWorkerUnblockSignals();

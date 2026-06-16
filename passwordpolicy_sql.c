@@ -14,6 +14,7 @@
 
 #include <funcapi.h>
 #include <nodes/execnodes.h>
+#include <utils/tuplestore.h>
 #include <utils/hsearch.h>
 #include <utils/timestamp.h>
 

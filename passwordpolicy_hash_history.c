@@ -99,11 +99,19 @@ void passwordpolicy_hash_history_init(void)
 
   info.keysize = sizeof(PasswordPolicyAccountKey);
   info.entrysize = offsetof(PasswordPolicyHistory, hashes) + mul_size(guc_passwordpolicy_history_max_num_entries, sizeof(PasswordPolicyHistoryHash));
+#if (PG_VERSION_NUM >= 190000)
+  /* PG 19 dropped the init_size argument from ShmemInitHash */
+  passwordpolicy_hash_history = ShmemInitHash("passwordpolicy hash history",
+                                              guc_passwordpolicy_history_max_num_accounts,
+                                              &info,
+                                              HASH_ELEM | HASH_STRINGS);
+#else
   passwordpolicy_hash_history = ShmemInitHash("passwordpolicy hash history",
                                               guc_passwordpolicy_history_max_num_accounts,
                                               guc_passwordpolicy_history_max_num_accounts,
                                               &info,
                                               HASH_ELEM | HASH_STRINGS);
+#endif
 }
 
 /**

@@ -12,7 +12,7 @@
 #include "passwordpolicy_vars.h"
 
 // GUC Password checks
-bool guc_passwordpolicy_enable_dict_check = true;   // Default: true
+bool guc_passwordpolicy_enable_dict_check = false;  // Default: false (matches boot_val in DefineCustomBoolVariable)
 int guc_passwordpolicy_min_length = 15;             // Default: 15
 int guc_passwordpolicy_min_spc_char = 1;            // Default: 1
 int guc_passwordpolicy_min_number_char = 1;         // Default: 1
@@ -22,7 +22,7 @@ bool guc_passwordpolicy_require_validuntil = false; // Default: false
 char *guc_passwordpolicy_cracklib_dictpath = NULL;
 // GUC Auth Soft-lock
 int guc_passwordpolicy_lock_after = 5;              // Default: 5
-bool guc_passwordpolicy_lock_all_accounts = true;   // Default: true
+bool guc_passwordpolicy_lock_all_accounts = false;  // Default: false (matches boot_val in DefineCustomBoolVariable)
 bool guc_passwordpolicy_lock_auto_unlock = true;    // Default: true
 int guc_passwordpolicy_lock_auto_unlock_after = 0;  // Default: 0 seconds (immediate)
 int guc_passwordpolicy_lock_failure_delay = 5;      // Default: 5 seconds

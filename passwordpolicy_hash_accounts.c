@@ -35,11 +35,19 @@ void passwordpolicy_hash_accounts_init(void)
 
   info.keysize = sizeof(PasswordPolicyAccountKey);
   info.entrysize = sizeof(PasswordPolicyAccount);
+#if (PG_VERSION_NUM >= 190000)
+  /* PG 19 dropped the init_size argument from ShmemInitHash */
+  passwordpolicy_hash_accounts = ShmemInitHash("passwordpolicy hash accounts",
+                                               guc_passwordpolicy_lock_max_num_accounts,
+                                               &info,
+                                               HASH_ELEM | HASH_STRINGS);
+#else
   passwordpolicy_hash_accounts = ShmemInitHash("passwordpolicy hash accounts",
                                                guc_passwordpolicy_lock_max_num_accounts,
                                                guc_passwordpolicy_lock_max_num_accounts,
                                                &info,
                                                HASH_ELEM | HASH_STRINGS);
+#endif
 }
 
 /**
